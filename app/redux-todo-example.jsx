@@ -2,8 +2,14 @@ const redux = require('redux');
 
 console.log('Starting redux example');
 
-const reducer = (state = {name: 'Anonymous'}, action) => {
-// state = state || {name: 'Anonymous'}
+const stateDefualt = {
+    searchText: '', 
+    searchCompleted: null, 
+    todos: []
+}
+
+const reducer = (state = stateDefualt, action) => {
+// state = state || stateDefualt;
 
 return state;
 };
