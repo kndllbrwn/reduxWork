@@ -22,7 +22,17 @@ switch(action.type) {
     }
 };
 
-const store = redux.createStore(reducer);
+const store = redux.createStore(reducer, redux.compose(
+    window.__REDUX_DEVTOOLS_EXTENSION__ && 
+    window.__REDUX_DEVTOOLS_EXTENSION__()
+));
+
+const unsubscribe = store.subscribe(() => {
+    var state = store.getState();
+
+    console.log('searchText is', state.searchText);
+    document.getElementById('app').innerHTML = state.searchText;
+});
 
 const currentState = store.getState();
 console.log('currentState', currentState);
@@ -32,4 +42,13 @@ store.dispatch({
     searchText: "Something"
 });
 
-console.log('searchText should be Something', store.getState());
+store.dispatch({
+    type: "CHANGE_SEARCH_TEXT",
+    searchText: "Work"
+});
+
+store.dispatch({
+    type: "CHANGE_SEARCH_TEXT",
+    searchText: "finish"
+});
+// console.log('searchText should be Something', store.getState());
