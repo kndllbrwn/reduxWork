@@ -2,7 +2,16 @@ const redux = require('redux');
 
 console.log('Starting redux example');
 
-const reducer = (state = {name: 'Anonymous'}, action) => {
+const stateDefault = {
+    name: 'Anonymous',
+    hobbies: [],
+    movies: []
+};
+
+var nextHobbyId  = 1;
+var nextMovieId  = 1;
+
+const reducer = (state = stateDefault, action) => {
     // state = state || {name: 'Anonymous'}
 
     
@@ -11,6 +20,39 @@ const reducer = (state = {name: 'Anonymous'}, action) => {
             return {
                 ...state,
                 name: action.name
+            };
+        case 'ADD_HOBBY':
+            return {
+                ...state,
+                hobbies: [
+                    ...state.hobbies, 
+                    {
+                        id: nextHobbyId++,
+                        hobby: action.hobby
+                    }
+                    ]
+            };
+        case 'REMOVE_HOBBY':
+            return {
+                ...state,
+                hobbies: state.hobbies.filter((hobby) => hobby.id !== action.id)
+            };
+        case 'ADD_MOVIE':
+            return {
+                ...state,
+                movies: [
+                    ...state.movies, 
+                    {
+                        id: nextMovieId++,
+                        title: action.title,
+                        genre: action.genre
+                    }
+                    ]
+            };
+        case 'REMOVE_MOVIE':
+            return {
+                ...state,
+                movies: state.movies.filter((movie) => movie.id !== action.id)
             };
         default:
             return state
@@ -28,6 +70,8 @@ const unsubscribe = store.subscribe(() => {
 
     console.log('Name is', state.name);
     document.getElementById('app').innerHTML = state.name;
+
+    console.log('New state', store.getState());
 });
 
 const currentState = store.getState();
@@ -38,9 +82,47 @@ store.dispatch({
     name: "Ken"
 });
 
+store.dispatch({
+    type: 'ADD_MOVIE',
+    title: 'Walking Dead',
+    genre: 'Horror'
+});
+
 // unsubscribe();
+
+store.dispatch({
+    type: "ADD_HOBBY",
+    hobby: "Running"
+});
+
+store.dispatch({
+    type: "ADD_HOBBY",
+    hobby: "Walking"
+});
+
+store.dispatch({
+    type: "REMOVE_HOBBY",
+    id: 2
+});
+
+store.dispatch({
+    type: "REMOVE_MOVIE",
+    id: 1
+});
+
+store.dispatch({
+    type: 'ADD_MOVIE',
+    title: 'Logan',
+    genre: 'Action'
+});
 
 store.dispatch({
     type: "CHANGE_NAME",
     name: "Lamont"
+});
+
+store.dispatch({
+    type: 'ADD_MOVIE',
+    title: 'Get Out',
+    genre: 'Romance'
 });
