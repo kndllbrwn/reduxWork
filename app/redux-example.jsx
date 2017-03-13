@@ -11,53 +11,103 @@ const stateDefault = {
 var nextHobbyId  = 1;
 var nextMovieId  = 1;
 
-const reducer = (state = stateDefault, action) => {
-    // state = state || {name: 'Anonymous'}
+// const oldReducer = (state = stateDefault, action) => {
+//     // state = state || {name: 'Anonymous'}
 
     
-    switch(action.type) {
+//     switch(action.type) {
+//         case 'CHANGE_NAME':
+//             return {
+//                 ...state,
+//                 name: action.name
+//             };
+//         case 'ADD_HOBBY':
+//             return {
+//                 ...state,
+//                 hobbies: [
+//                     ...state.hobbies, 
+//                     {
+//                         id: nextHobbyId++,
+//                         hobby: action.hobby
+//                     }
+//                     ]
+//             };
+//         case 'REMOVE_HOBBY':
+//             return {
+//                 ...state,
+//                 hobbies: state.hobbies.filter((hobby) => hobby.id !== action.id)
+//             };
+//         case 'ADD_MOVIE':
+//             return {
+//                 ...state,
+//                 movies: [
+//                     ...state.movies, 
+//                     {
+//                         id: nextMovieId++,
+//                         title: action.title,
+//                         genre: action.genre
+//                     }
+//                     ]
+//             };
+//         case 'REMOVE_MOVIE':
+//             return {
+//                 ...state,
+//                 movies: state.movies.filter((movie) => movie.id !== action.id)
+//             };
+//         default:
+//             return state
+//     }
+// };
+
+const nameReducer = (state = 'Anonymous', action) => {
+    switch (action.type) {
         case 'CHANGE_NAME':
-            return {
-                ...state,
-                name: action.name
-            };
-        case 'ADD_HOBBY':
-            return {
-                ...state,
-                hobbies: [
-                    ...state.hobbies, 
-                    {
-                        id: nextHobbyId++,
-                        hobby: action.hobby
-                    }
-                    ]
-            };
-        case 'REMOVE_HOBBY':
-            return {
-                ...state,
-                hobbies: state.hobbies.filter((hobby) => hobby.id !== action.id)
-            };
-        case 'ADD_MOVIE':
-            return {
-                ...state,
-                movies: [
-                    ...state.movies, 
-                    {
-                        id: nextMovieId++,
-                        title: action.title,
-                        genre: action.genre
-                    }
-                    ]
-            };
-        case 'REMOVE_MOVIE':
-            return {
-                ...state,
-                movies: state.movies.filter((movie) => movie.id !== action.id)
-            };
+            return action.name
         default:
-            return state
-    }
+            return state;
+    };
 };
+
+const hobbyReducer = (state = [], action) => {
+    switch(action.type) {
+        case 'ADD_HOBBY':
+            return [
+                ...state,
+                {
+                    id: nextHobbyId++,
+                    hobby: action.hobby
+                }
+            ];
+        case 'REMOVE_HOBBY':
+            return state.filter((hobby) => hobby.id !== action.id);
+        default:
+             return state;
+    };
+};
+
+const movieReducer = (state = [], action) => {
+    switch(action.type) {
+        case 'ADD_MOVIE':
+            return [
+                ...state,
+                {
+                    id: nextMovieId++,
+                    title: action.title,
+                    genre: action.genre
+                }
+            ];
+        case 'REMOVE_MOVIE':
+            return state.filter((movie) => movie.id !== action.id);
+        default:
+            return state;
+    };
+};
+
+const reducer = redux.combineReducers({
+    name: nameReducer,
+    hobbies: hobbyReducer,
+    movies: movieReducer
+})
 
 const store = redux.createStore(reducer, redux.compose(
     window.__REDUX_DEVTOOLS_EXTENSION__ && 
