@@ -1,153 +1,9 @@
 const redux = require('redux');
-const axios = require('axios');
 
 console.log('Starting redux example');
 
-
-
-// Name reducer and action generators
-// --------------------
-const nameReducer = (state = 'Anonymous', action) => {
-    switch (action.type) {
-        case 'CHANGE_NAME':
-            return action.name
-        default:
-            return state;
-    };
-};
-
-const changeName = (name) => {
-    return {
-        type: 'CHANGE_NAME',
-        name
-    }
-};
-
-// Hobbies reducer and action generators
-// --------------------
-var nextHobbyId  = 1;
-const hobbyReducer = (state = [], action) => {
-    switch(action.type) {
-        case 'ADD_HOBBY':
-            return [
-                ...state,
-                {
-                    id: nextHobbyId++,
-                    hobby: action.hobby
-                }
-            ];
-        case 'REMOVE_HOBBY':
-            return state.filter((hobby) => hobby.id !== action.id);
-        default:
-             return state;
-    };
-};
-
-const addHobby = (hobby) => {
-    return {
-        type: 'ADD_HOBBY',
-        hobby
-    }
-};
-
-const removeHobby = (id) => {
-    return {
-        type: 'REMOVE_HOBBY',
-        id
-    }
-};
-
-// Movies reducer and action generators
-// --------------------
-var nextMovieId  = 1;
-const movieReducer = (state = [], action) => {
-    switch(action.type) {
-        case 'ADD_MOVIE':
-            return [
-                ...state,
-                {
-                    id: nextMovieId++,
-                    title: action.title,
-                    genre: action.genre
-                }
-            ];
-        case 'REMOVE_MOVIE':
-            return state.filter((movie) => movie.id !== action.id);
-        default:
-            return state;
-    };
-};
-
-const addMovie = (title, genre) => {
-    return {
-        type: 'ADD_MOVIE',
-        title,
-        genre
-    }
-};
-
-const removeMovie = (id) => {
-    return {
-        type: 'REMOVE_MOVIE',
-        id
-    };
-};
-
-// Movies reducer and action generators
-// --------------------
-
-const mapReducer = (state = {isFetching : false, url: null}, action) => {
-    switch(action.type) {
-        case 'START_LOCATION_FETCH':
-            return {
-                isFetching: true,
-                url: null
-            };
-        case 'COMPLETE_LOCATION_FETCH':
-            return {
-                isFetching: false,
-                url: action.url
-            };
-        default:
-            return state;
-    }
-};
-
-const startLocationFetch = () => {
-    return {
-        type: 'START_LOCATION_FETCH'
-    }    
-};
-
-const completeLocationFetch = (url) => {
-    return {
-        type: 'COMPLETE_LOCATION_FETCH',
-        url
-    }
-};
-
-const fetchLocation = () => {
-    store.dispatch(startLocationFetch());
-
-    axios.get('http://ipinfo.io').then(function(res) {
-        var loc = res.data.loc;
-        var baseUrl = 'http://maps.google.com/?q='
-
-        store.dispatch(completeLocationFetch(baseUrl + loc));
-    })
-}
-
-const reducer = redux.combineReducers({
-    name: nameReducer,
-    hobbies: hobbyReducer,
-    movies: movieReducer,
-    map: mapReducer
-})
-
-const store = redux.createStore(reducer, redux.compose(
-    window.__REDUX_DEVTOOLS_EXTENSION__ && 
-    window.__REDUX_DEVTOOLS_EXTENSION__()
-));
+const actions = require('./actions/index');
+const store = require('./store/configureStore').configure();
 
 // subscibe to  changes
 const unsubscribe = store.subscribe(() => {
@@ -165,17 +21,17 @@ const unsubscribe = store.subscribe(() => {
 const currentState = store.getState();
 console.log('currentState', currentState);
 
-fetchLocation();
+store.dispatch(actions.fetchLocation());
 
-store.dispatch(changeName("Ken"));
-store.dispatch(addMovie('Walking Dead', 'Horror'));
-store.dispatch(addHobby('Running'));
-store.dispatch(addHobby('Walking'));
-store.dispatch(removeHobby(2));
-store.dispatch(removeMovie(1));
-store.dispatch(addMovie('Logan', 'Action'));
-store.dispatch(changeName("Lamont"));
-store.dispatch(addMovie('Get Out', 'Romance'));
+store.dispatch(actions.changeName("Ken"));
+store.dispatch(actions.addMovie('Walking Dead', 'Horror'));
+store.dispatch(actions.addHobby('Running'));
+store.dispatch(actions.addHobby('Walking'));
+store.dispatch(actions.removeHobby(2));
+store.dispatch(actions.removeMovie(1));
+store.dispatch(actions.addMovie('Logan', 'Action'));
+store.dispatch(actions.changeName("Lamont"));
+store.dispatch(actions.addMovie('Get Out', 'Romance'));
 
 // store.dispatch({
 //     type: "CHANGE_NAME",
