@@ -1,60 +1,9 @@
 const redux = require('redux');
+const axios = require('axios');
 
 console.log('Starting redux example');
 
-// const stateDefault = {
-//     name: 'Anonymous',
-//     hobbies: [],
-//     movies: []
-// };
 
-// const oldReducer = (state = stateDefault, action) => {
-//     // state = state || {name: 'Anonymous'}
-
-    
-//     switch(action.type) {
-//         case 'CHANGE_NAME':
-//             return {
-//                 ...state,
-//                 name: action.name
-//             };
-//         case 'ADD_HOBBY':
-//             return {
-//                 ...state,
-//                 hobbies: [
-//                     ...state.hobbies, 
-//                     {
-//                         id: nextHobbyId++,
-//                         hobby: action.hobby
-//                     }
-//                     ]
-//             };
-//         case 'REMOVE_HOBBY':
-//             return {
-//                 ...state,
-//                 hobbies: state.hobbies.filter((hobby) => hobby.id !== action.id)
-//             };
-//         case 'ADD_MOVIE':
-//             return {
-//                 ...state,
-//                 movies: [
-//                     ...state.movies, 
-//                     {
-//                         id: nextMovieId++,
-//                         title: action.title,
-//                         genre: action.genre
-//                     }
-//                     ]
-//             };
-//         case 'REMOVE_MOVIE':
-//             return {
-//                 ...state,
-//                 movies: state.movies.filter((movie) => movie.id !== action.id)
-//             };
-//         default:
-//             return state
-//     }
-// };
 
 // Name reducer and action generators
 // --------------------
@@ -144,10 +93,55 @@ const removeMovie = (id) => {
     };
 };
 
+// Movies reducer and action generators
+// --------------------
+
+const mapReducer = (state = {isFetching : false, url: null}, action) => {
+    switch(action.type) {
+        case 'START_LOCATION_FETCH':
+            return {
+                isFetching: true,
+                url: null
+            };
+        case 'COMPLETE_LOCATION_FETCH':
+            return {
+                isFetching: false,
+                url: action.url
+            };
+        default:
+            return state;
+    }
+};
+
+const startLocationFetch = () => {
+    return {
+        type: 'START_LOCATION_FETCH'
+    }    
+};
+
+const completeLocationFetch = (url) => {
+    return {
+        type: 'COMPLETE_LOCATION_FETCH',
+        url
+    }
+};
+
+const fetchLocation = () => {
+    store.dispatch(startLocationFetch());
+
+    axios.get('http://ipinfo.io').then(function(res) {
+        var loc = res.data.loc;
+        var baseUrl = 'http://maps.google.com/?q='
+
+        store.dispatch(completeLocationFetch(baseUrl + loc));
+    })
+}
+
 const reducer = redux.combineReducers({
     name: nameReducer,
     hobbies: hobbyReducer,
-    movies: movieReducer
+    movies: movieReducer,
+    map: mapReducer
 })
 
 const store = redux.createStore(reducer, redux.compose(
@@ -159,14 +153,19 @@ const store = redux.createStore(reducer, redux.compose(
 const unsubscribe = store.subscribe(() => {
     var state = store.getState();
 
-    console.log('Name is', state.name);
-    document.getElementById('app').innerHTML = state.name;
-
     console.log('New state', store.getState());
+
+    if (state.map.isFetching) {
+        document.getElementById('app').innerHTML = 'Loading...';
+    } else if (state.map) {
+        document.getElementById('app').innerHTML = '<a href="' + state.map.url + '" target="_blank">View Your Location</a>'
+    }
 });
 
 const currentState = store.getState();
 console.log('currentState', currentState);
+
+fetchLocation();
 
 store.dispatch(changeName("Ken"));
 store.dispatch(addMovie('Walking Dead', 'Horror'));
@@ -232,3 +231,57 @@ store.dispatch(addMovie('Get Out', 'Romance'));
 //     title: 'Get Out',
 //     genre: 'Romance'
 // });
+
+// const stateDefault = {
+//     name: 'Anonymous',
+//     hobbies: [],
+//     movies: []
+// };
+
+// const oldReducer = (state = stateDefault, action) => {
+//     // state = state || {name: 'Anonymous'}
+
+    
+//     switch(action.type) {
+//         case 'CHANGE_NAME':
+//             return {
+//                 ...state,
+//                 name: action.name
+//             };
+//         case 'ADD_HOBBY':
+//             return {
+//                 ...state,
+//                 hobbies: [
+//                     ...state.hobbies, 
+//                     {
+//                         id: nextHobbyId++,
+//                         hobby: action.hobby
+//                     }
+//                     ]
+//             };
+//         case 'REMOVE_HOBBY':
+//             return {
+//                 ...state,
+//                 hobbies: state.hobbies.filter((hobby) => hobby.id !== action.id)
+//             };
+//         case 'ADD_MOVIE':
+//             return {
+//                 ...state,
+//                 movies: [
+//                     ...state.movies, 
+//                     {
+//                         id: nextMovieId++,
+//                         title: action.title,
+//                         genre: action.genre
+//                     }
+//                     ]
+//             };
+//         case 'REMOVE_MOVIE':
+//             return {
+//                 ...state,
+//                 movies: state.movies.filter((movie) => movie.id !== action.id)
+//             };
+//         default:
+//             return state
+//     }
+// };
